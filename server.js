@@ -226,8 +226,11 @@ app.post('/unsubscribe', function(req, res) {
   console.log(challenge);
   res.status(200).send(challenge); // Responding is important
 });*/
-server.listen(80, 'localhost', function() {
-    console.log('listening at http://%s:%s', 'localhost', 80);
+const PORT = process.env.PORT || 80;
+var server = app.listen(PORT, function() {
+    var host = server.address().address;
+    var port = server.address().port;
+    console.log("server is listening at http://%s:%s", host, port);
 }).on('error', (e) => {
     console.error(e.message);
     throw e;
