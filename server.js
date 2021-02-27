@@ -228,9 +228,7 @@ app.post('/unsubscribe', function(req, res) {
 });*/
 const PORT = process.env.PORT || 80;
 app.listen(PORT, function() {
-    var host = server.address().address;
-    var port = server.address().port;
-    console.log("server is listening at http://%s:%s", host, port);
+    console.log("server is listening");
 }).on('error', (e) => {
     console.error(e.message);
     throw e;
