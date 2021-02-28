@@ -1,26 +1,112 @@
 'use strict';
-const Discord = require('discord.js');
-
-const bot = new Discord.Client();
-
 const http = require('http');
 const express = require('express');
 const app = express();
 const  bodyParser = require('body-parser');
 const server = http.createServer(app);
-const URL = process.env.URL;
-const axios = require('axios')
+const axios = require('axios');
 
-/*axios
+const verify = (req, res, buf, encoding) => {
+  const expected = req.headers['x-hub-signature'];
+  const calculated = 'sha256=' + crypto.createHmac('sha256', "secret").update(buf).digest('hex');
+  req.verified = expected == calculated;
+};
+app.use(bodyParser.json())
+app.post('/onlive', function(req, res) { 
+  console.log(req.body);
+  var status = req.body.subscription.status;
+  var challenge = req.body.challenge;
+  var payload = req.body.subscription;
+
+ if(challenge !== undefined){
+   res.status(200).send(challenge);
+  }
+  else if(payload !== undefined){
+    if(status === "authorization_revoked"){
+      subscribe();
+    }
+    else{
+      alerteWebHook();
+      res.status(200).send("OK");
+    }
+  }
+});
+
+const PORT = process.env.PORT || 80;
+app.listen(PORT, function() {
+    console.log("server is listening");
+}).on('error', (e) => {
+    console.error(e.message);
+    throw e;
+});
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+function alerteWebHook(){
+
+  const helix = axios.create({
+    baseURL: 'https://api.twitch.tv/helix/',
+    headers: {
+      'Authorization': process.env.TWITCH_TOKEN,
+      'Client-ID': process.env.TWITCH_CLIENT_ID,
+      'Content-Type': 'application/json'
+      }
+
+  });
+  const streamer = process.env.STREAMER
+  helix.get('streams?user_login='+streamer).then( function (response) {
+    var info = response.data.data[0];
+    axios
+    .post(process.env.WEBHOOK_DISCORD,{
+      "content": "Le live est lancé @everyone",
+      "embeds": [{
+        "author": {
+          "name": info.user_login+" le stream commence !",
+          "url": "https://www.twitch.tv/"+info.user_login,
+          "icon_url": "https://avatar.glue-bot.xyz/twitch/"+info.user_login
+        },
+        "fields": [
+          {
+            "name": "titre",
+            "value": info.title,
+            "inline": false
+          },
+          {
+            "name": "jeu",
+            "value": info.game_name,
+            "inline": true
+          },
+          {
+            "name": "Viewers",
+            "value": info.viewer_count,
+            "inline": true
+          }
+        ],
+        "image": {
+          "url":  'https://static-cdn.jtvnw.net/previews-ttv/live_user_'+info.user_login+'-320x180.jpg'
+        },
+        "color": 9520895
+      }]
+    })
+    .then(res => {
+      
+    })
+    .catch(error => {
+      console.error(error)
+    });
+  })
+}
+function subscribe(){
+  axios
   .post('https://api.twitch.tv/helix/eventsub/subscriptions',{
       "type": "stream.online",
       "version": "1",
       "condition": {
-          "broadcaster_user_id": "198743554"
+          "broadcaster_user_id": process.env.TWITCH_CHANNEL_ID
       },
       "transport": {
           "method": "webhook",
-          "callback": URL+"/onlive",
+          "callback": process.env.URL+"/onlive",
           "secret": process.env.TWITCH_SECRET
       }
     },{
@@ -31,208 +117,28 @@ const axios = require('axios')
         }
     })
   .then(res => {
-    //console.log(res)
-  })
-  .catch(error => {
-    console.error(error)
-  });*/
-/*axios
-  .post('https://api.twitch.tv/helix/webhooks/hub',{
-      'hub.mode':'unsubscribe',
-      'hub.topic':'https://api.twitch.tv/helix/streams?user_id=5678',
-      'hub.callback':URL+'/unsubscribe',
-      'hub.secret':'s3cRe7terhbsigvfgjkffduiasvbedfsio'
-      },{
-      headers: {
-        'Authorization':'Bearer 9li0ax49dtj97eshpxfaom33ek8crp',
-        'Client-ID': 'fkbgiixgaax35iowknli2d7liw00bq',
-        'Content-Type': 'application/json'
-        }
-    })
-  .then(res => {
-  })
-  .catch(error => {
-    console.error(error)
-  });*/
-/*axios
-  .get('https://api.twitch.tv/helix/webhooks/subscriptions',{
-      headers: {
-        'Authorization':'Bearer 9li0ax49dtj97eshpxfaom33ek8crp',
-        'Client-ID': 'fkbgiixgaax35iowknli2d7liw00bq'
-        }
-    })
-  .then(res => {
-    console.log(res.data)
-  })
-  .catch(error => {
-    console.error(error)
-  });*/
-
-/*axios
-  .post('https://api.twitch.tv/helix/eventsub/subscriptions',{
-      "type": "stream.online",
-      "version": "1",
-      "condition": {
-          "broadcaster_user_id": "198743554"
-      },
-      "transport": {
-          "method": "webhook",
-          "callback": URL+"/onlive",
-          "secret": "s3cRe7terhbsigvfgjkffduiasvbedfsio"
-      }
-    },{
-      headers: {
-        'Authorization':'Bearer 9li0ax49dtj97eshpxfaom33ek8crp',
-        'Client-ID': 'fkbgiixgaax35iowknli2d7liw00bq',
-        'Content-Type': 'application/json'
-        }
-    })
-  .then(res => {
-    //console.log(res)
+  
   })
   .catch(error => {
     console.error(error)
   });
- axios
-  .post('https://api.twitch.tv/helix/webhooks/hub',{
-      'hub.mode':'subscribe',
-      'hub.topic':'https://api.twitch.tv/helix/streams?user_id=198743554',
-      'hub.callback':'https://b5345a0c6c31.ngrok.io/onlive',
-      'hub.lease_seconds':'120', 
-  //'hub.secret':'s3cRe7terhbsigvfgjkffduiasvbedfsio'
-      },{
-      headers: {
-        'Authorization':'Bearer 9li0ax49dtj97eshpxfaom33ek8crp',
-        'Client-ID': 'fkbgiixgaax35iowknli2d7liw00bq',
-        'Content-Type': 'application/json'
-        }
+}
+function getAllSubs(){
+  axios
+    .post('https://id.twitch.tv/oauth2/token?client_id='+process.env.TWITCH_CLIENT_ID+'&client_secret'+ process.env.TWITCH_TOKEN+'=&grant_type=client_credentials')
+    .then(res => {
+      console.log(res)
     })
-  .then(res => {
-  })
-  .catch(error => {
-    console.error(error)
-  });*/
+    .catch(error => {
+      console.error(error)
+    });
+}
 
-const verify = (req, res, buf, encoding) => {
-    const expected = req.headers['x-hub-signature'];
-    const calculated = 'sha256=' + crypto.createHmac('sha256', "s3cRe7terhbsigvfgjkffduiasvbedfsio").update(buf).digest('hex');
-    req.verified = expected == calculated;
-};
-app.use(bodyParser.json())
-/*app.get('/onlive',(req, res) =>{
-  console.log(req);
-  var challenge = req.query['hub.challenge'];
-  res.status(200).send(challenge); // Responding is important
-})*/
-app.post('/onlive', function(req, res) { 
-  console.log(req.body);
-  var id = req.body.subscription.id;
-  var status = req.body.subscription.status;
-  var challenge = req.body.challenge;
-  var payload = req.body.subscription;
- // var id = req.body.subscription["id"];
- // '7760b62d-89d9-41a9-8aa6-6668774bea9d'
- if(challenge !== undefined){
-   res.status(200).send(challenge);
-  }
-  else if(payload !== undefined){
-    if(status === "authorization_revoked"){
-      axios
-      .post('https://api.twitch.tv/helix/eventsub/subscriptions',{
-          "type": "stream.online",
-          "version": "1",
-          "condition": {
-              "broadcaster_user_id": process.env.TWITCH_CHANNEL_ID
-          },
-          "transport": {
-              "method": "webhook",
-              "callback": URL+"/onlive",
-              "secret": process.env.TWITCH_SECRET
-          }
-        },{
-          headers: {
-            'Authorization': process.env.TWITCH_TOKEN,
-            'Client-ID': process.env.TWITCH_CLIENT_ID,
-            'Content-Type': 'application/json'
-            }
-        })
-      .then(res => {
-        //console.log(res)
-      })
-      .catch(error => {
-        console.error(error)
-      });
-    }
-    else{
 
-      const embed = new Discord.MessageEmbed()
-      
-      embed.setTitle('alkia_tv est en live !');
-      embed.setColor(0xff0000);
-      // embed.setDescription('@everyone');
-      embed.setURL('https://www.twitch.tv/alkia_tv');
-      embed.setThumbnail('https://avatar.glue-bot.xyz/twitch/alkia_tv');
-      embed.setImage('https://static-cdn.jtvnw.net/previews-ttv/live_user_alkia_tv-500x500.jpg');
-      
-      bot.channels.cache.get(process.env.CHANNEL_ID).send(embed);
-      res.status(200).send("OK");
-    }
-    /*  axios
-      .delete(' https://api.twitch.tv/helix/eventsub/subscriptions?id='+id,{
-        'hub.mode':'unsubscribe',
-        'hub.topic':'https://api.twitch.tv/helix/streams?user_id=198743554',
-        'hub.callback':URL+'/unsubscribe',
-        'hub.lease_seconds':'120', 
-        //'hub.secret':'s3cRe7terhbsigvfgjkffduiasvbedfsio'
-      },{
-        headers: {
-          'Authorization':'Bearer 9li0ax49dtj97eshpxfaom33ek8crp',
-          'Client-ID': 'fkbgiixgaax35iowknli2d7liw00bq',
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(res => {
-      })
-      .catch(error => {
-        console.error(error)
-      });*/
-      /*   axios
-      .post('https://api.twitch.tv/helix/webhooks/hub',{
-        'hub.mode':'unsubscribe',
-        'hub.topic':'https://api.twitch.tv/helix/streams?user_id=198743554',
-        'hub.callback':URL+'/unsubscribe',
-        'hub.lease_seconds':'120', 
-        //'hub.secret':'s3cRe7terhbsigvfgjkffduiasvbedfsio'
-      },{
-        headers: {
-          'Authorization':'Bearer 9li0ax49dtj97eshpxfaom33ek8crp',
-          'Client-ID': 'fkbgiixgaax35iowknli2d7liw00bq',
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(res => {
-      })
-      .catch(error => {
-        console.error(error)
-      });*/
-    }
-});
-/*app.get('/unsubscribe', function(req, res) { 
-  var challenge = req.query['hub.challenge'];
-  console.log(challenge);
-  res.status(200).send(challenge); // Responding is important
-});
-app.post('/unsubscribe', function(req, res) { 
-  var challenge = req.query['hub.challenge'];
-  console.log(challenge);
-  res.status(200).send(challenge); // Responding is important
-});*/
-const PORT = process.env.PORT || 80;
-app.listen(PORT, function() {
-    console.log("server is listening");
-}).on('error', (e) => {
-    console.error(e.message);
-    throw e;
-});
-
-bot.login(process.env.DISCORD_TOKEN);
+// truc à faire :
+// enlever le code qui sert à rien => FAIT
+// tester la validiter du token 
+// tester la revocation du subscribe et re sub si c'est le cas => FAIT
+// utiliser le webhook pour la notification (simple à mettre en place sur plusieurs server) => FAIT
+// prendre les info de twitch pour remplir le json du webhook => FAIT
+//https://discord.com/api/webhooks/812405810201100368/Tk2mZwOZTVFqJePxuQcQZQO3voy9v7YfW0hcr8DK3WgOf6fuO7tK0ALFQ-9AB64mmYtn
