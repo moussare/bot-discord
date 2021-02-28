@@ -11,7 +11,7 @@ const server = http.createServer(app);
 const URL = process.env.URL;
 const axios = require('axios')
 
-axios
+/*axios
   .post('https://api.twitch.tv/helix/eventsub/subscriptions',{
       "type": "stream.online",
       "version": "1",
@@ -35,7 +35,7 @@ axios
   })
   .catch(error => {
     console.error(error)
-  });
+  });*/
 /*axios
   .post('https://api.twitch.tv/helix/webhooks/hub',{
       'hub.mode':'unsubscribe',
@@ -175,6 +175,7 @@ app.post('/onlive', function(req, res) {
       embed.setImage('https://static-cdn.jtvnw.net/previews-ttv/live_user_alkia_tv-500x500.jpg');
       
       bot.channels.cache.get(process.env.CHANNEL_ID).send(embed);
+      res.status(200).send("OK");
     }
     /*  axios
       .delete(' https://api.twitch.tv/helix/eventsub/subscriptions?id='+id,{
