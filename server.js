@@ -5,7 +5,7 @@ const app = express();
 const  bodyParser = require('body-parser');
 const server = http.createServer(app);
 const axios = require('axios');
-subscribe();
+
 const verify = (req, res, buf, encoding) => {
   const expected = req.headers['x-hub-signature'];
   const calculated = 'sha256=' + crypto.createHmac('sha256', "secret").update(buf).digest('hex');
@@ -117,7 +117,7 @@ function subscribe(){
         }
     })
   .then(res => {
-  console.log(res);
+    console.log(res)
   })
   .catch(error => {
     console.error(error)
