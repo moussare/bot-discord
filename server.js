@@ -26,8 +26,8 @@ app.post('/onlive', function(req, res) {
       subscribe();
     }
     else{
-      alerteWebHook();
       res.status(200).send("OK");
+      alerteWebHook();
     }
   }
 });
