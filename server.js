@@ -13,7 +13,6 @@ const verify = (req, res, buf, encoding) => {
 };
 app.use(bodyParser.json())
 app.post('/onlive', function(req, res) { 
-  console.log(req.body);
   var status = req.body.subscription.status;
   var challenge = req.body.challenge;
   var payload = req.body.subscription;
@@ -26,8 +25,9 @@ app.post('/onlive', function(req, res) {
       subscribe();
     }
     else{
-      res.status(200).send("OK");
+     
       alerteWebHook();
+       res.status(200).send("OK");
     }
   }
 });
