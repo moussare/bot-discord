@@ -26,8 +26,58 @@ app.post('/onlive', function(req, res) {
     }
     else{
      
-      alerteWebHook();
        res.status(200).send("OK");
+      const helix = axios.create({
+    baseURL: 'https://api.twitch.tv/helix/',
+    headers: {
+      'Authorization': process.env.TWITCH_TOKEN,
+      'Client-ID': process.env.TWITCH_CLIENT_ID,
+      'Content-Type': 'application/json'
+      }
+
+  });
+  const streamer = process.env.STREAMER
+  helix.get('streams?user_login='+streamer).then( function (response) {
+    var info = response.data.data[0];
+    axios
+    .post(process.env.WEBHOOK_DISCORD,{
+      "content": "Le live est lancé @everyone",
+      "embeds": [{
+        "author": {
+          "name": info.user_login+" le stream commence !",
+          "url": "https://www.twitch.tv/"+info.user_login,
+          "icon_url": "https://avatar.glue-bot.xyz/twitch/"+info.user_login
+        },
+        "fields": [
+          {
+            "name": "titre",
+            "value": info.title,
+            "inline": false
+          },
+          {
+            "name": "jeu",
+            "value": info.game_name,
+            "inline": true
+          },
+          {
+            "name": "Viewers",
+            "value": info.viewer_count,
+            "inline": true
+          }
+        ],
+        "image": {
+          "url":  'https://static-cdn.jtvnw.net/previews-ttv/live_user_'+info.user_login+'-320x180.jpg'
+        },
+        "color": 9520895
+      }]
+    })
+    .then(res => {
+      
+    })
+    .catch(error => {
+      console.error(error)
+    });
+  })
     }
   }
 });
