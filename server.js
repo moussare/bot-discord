@@ -142,4 +142,4 @@ function getAllSubs(){
 // tester la revocation du subscribe et re sub si c'est le cas => FAIT
 // utiliser le webhook pour la notification (simple à mettre en place sur plusieurs server) => FAIT
 // prendre les info de twitch pour remplir le json du webhook => FAIT
-//https://discord.com/api/webhooks/812405810201100368/Tk2mZwOZTVFqJePxuQcQZQO3voy9v7YfW0hcr8DK3WgOf6fuO7tK0ALFQ-9AB64mmYtn
+
