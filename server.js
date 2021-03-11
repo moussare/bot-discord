@@ -25,8 +25,9 @@ app.post('/onlive', function(req, res) {
       subscribe();
     }
     else{
-     alerteWebHook().catch(err => console.log(err.message));
-     res.status(200).send("OK");
+       res.status(200).send("OK");
+       alerteWebHook();
+    
 
     }
   }
@@ -42,7 +43,7 @@ app.listen(PORT, function() {
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
-async function alerteWebHook(){
+function alerteWebHook(){
 
   const helix = axios.create({
     baseURL: 'https://api.twitch.tv/helix/',
