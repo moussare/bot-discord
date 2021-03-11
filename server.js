@@ -25,9 +25,9 @@ app.post('/onlive', function(req, res) {
       subscribe();
     }
     else{
-       res.status(200).send("OK");
+     
        alerteWebHook();
-    
+      res.sendStatus(200);
 
     }
   }
