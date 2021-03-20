@@ -18,15 +18,18 @@ app.post('/onlive', function(req, res) {
   var payload = req.body.subscription;
 
  if(challenge !== undefined){
+   log(req.body)
    res.status(200).send(challenge);
   }
   else if(payload !== undefined){
     if(status === "authorization_revoked"){
       subscribe();
+      log(payload)
     }
     else{
      
        alerteWebHook();
+       log(payload)
        res.sendStatus(200);
 
     }
@@ -135,7 +138,18 @@ function getAllSubs(){
     });
 }
 
-
+function log(json){
+  var logger = fs.createWriteStream('log.txt', {
+    flags: 'a' //'a' means appending (old data will be preserved)
+  })
+  
+  var today = new Date(); 
+  let entete = "##############################  "+today.getDate()+"/"+(today.getMonth()+1)+"/"+today.getFullYear()+" à "+today.getHours()+"/"+today.getMinutes()+"/"+today.getSeconds()+"  ########################################"
+ 
+  let sep = "###########################################################################################"
+  logger.write(entete+"\n"+JSON.stringify(json)+'\n'+sep+'\n')
+  logger.end()
+}
 // truc à faire :
 // enlever le code qui sert à rien => FAIT
 // tester la validiter du token 
