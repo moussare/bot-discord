@@ -140,6 +140,7 @@ function getAllSubs(){
 }
 
 function log(json){
+  var today = new Date(); 
   let entete = today.getDate()+"/"+(today.getMonth()+1)+"/"+today.getFullYear()+" à "+today.getHours()+"/"+today.getMinutes()+"/"+today.getSeconds()
   logger.info('message', { date: entete, data:json })
 }
