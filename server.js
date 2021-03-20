@@ -5,6 +5,7 @@ const app = express();
 const  bodyParser = require('body-parser');
 const server = http.createServer(app);
 const axios = require('axios');
+const logger = require('heroku-logger');
 
 const verify = (req, res, buf, encoding) => {
   const expected = req.headers['x-hub-signature'];
@@ -139,16 +140,8 @@ function getAllSubs(){
 }
 
 function log(json){
-  var logger = fs.createWriteStream('log.txt', {
-    flags: 'a' //'a' means appending (old data will be preserved)
-  })
-  
-  var today = new Date(); 
-  let entete = "##############################  "+today.getDate()+"/"+(today.getMonth()+1)+"/"+today.getFullYear()+" à "+today.getHours()+"/"+today.getMinutes()+"/"+today.getSeconds()+"  ########################################"
- 
-  let sep = "###########################################################################################"
-  logger.write(entete+"\n"+JSON.stringify(json)+'\n'+sep+'\n')
-  logger.end()
+  let entete = today.getDate()+"/"+(today.getMonth()+1)+"/"+today.getFullYear()+" à "+today.getHours()+"/"+today.getMinutes()+"/"+today.getSeconds()
+  logger.info('message', { date: entete, data:json })
 }
 // truc à faire :
 // enlever le code qui sert à rien => FAIT
