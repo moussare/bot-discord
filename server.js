@@ -6,7 +6,7 @@ const  bodyParser = require('body-parser');
 const server = http.createServer(app);
 const axios = require('axios');
 const logger = require('heroku-logger');
-
+logger.info('message', { date: 'dddddddddddddddddddddd'})
 const verify = (req, res, buf, encoding) => {
   const expected = req.headers['x-hub-signature'];
   const calculated = 'sha256=' + crypto.createHmac('sha256', "secret").update(buf).digest('hex');
