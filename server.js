@@ -6,6 +6,7 @@ const  bodyParser = require('body-parser');
 const server = http.createServer(app);
 const axios = require('axios');
 const logger = require('heroku-logger');
+const fs = require('fs');
 fs.readFile("id.txt", 'utf8', function(err, data) {
     if (err) throw err;
     console.log(data)
@@ -150,7 +151,6 @@ function doLog(json){
   logger.info('message', { data:json })
 }
 function log(id){
-  const fs = require('fs');
   fs.writeFileSync('id.txt', id);
 }
 
