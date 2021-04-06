@@ -25,10 +25,10 @@ app.post('/onlive', function(req, res) {
   else if(payload !== undefined){
     if(status === "authorization_revoked"){
       subscribe();
-      logger(payload)
+      doLog(payload)
     }
     else{
-      logger(payload)
+      doLog(payload)
       fs.readFile("id.txt", 'utf8', function(err, data) {
         if (err) throw err;
         if(payload.id != data){
@@ -143,7 +143,7 @@ function getAllSubs(){
     });
 }
 
-function logger(json){
+function doLog(json){
   logger.info('message', { data:json })
 }
 function log(id){
