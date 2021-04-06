@@ -7,11 +7,6 @@ const server = http.createServer(app);
 const axios = require('axios');
 const logger = require('heroku-logger');
 const fs = require('fs');
-log("djdjdjjd")
-fs.readFile("id.txt", 'utf8', function(err, data) {
-    if (err) throw err;
-    console.log(data)
-});
 const verify = (req, res, buf, encoding) => {
   const expected = req.headers['x-hub-signature'];
   const calculated = 'sha256=' + crypto.createHmac('sha256', "secret").update(buf).digest('hex');
