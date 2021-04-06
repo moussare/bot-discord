@@ -6,7 +6,7 @@ const  bodyParser = require('body-parser');
 const server = http.createServer(app);
 const axios = require('axios');
 const logger = require('heroku-logger');
-
+log("none")
 const verify = (req, res, buf, encoding) => {
   const expected = req.headers['x-hub-signature'];
   const calculated = 'sha256=' + crypto.createHmac('sha256', "secret").update(buf).digest('hex');
@@ -25,14 +25,18 @@ app.post('/onlive', function(req, res) {
   else if(payload !== undefined){
     if(status === "authorization_revoked"){
       subscribe();
-      log(payload)
+      logger(payload)
     }
     else{
-     
-       alerteWebHook();
-       log(payload)
-       res.sendStatus(200);
-
+      logger(payload)
+      fs.readFile("id.txt", 'utf8', function(err, data) {
+        if (err) throw err;
+        if(payload.id != data){
+          log(payload.id)
+          alerteWebHook();
+        }
+      });
+      res.sendStatus(200);
     }
   }
 });
@@ -139,9 +143,15 @@ function getAllSubs(){
     });
 }
 
-function log(json){
+function logger(json){
   logger.info('message', { data:json })
 }
+function log(id){
+  const fs = require('fs');
+  fs.writeFileSync('id.txt', id);
+}
+
+
 // truc à faire :
 // enlever le code qui sert à rien => FAIT
 // tester la validiter du token 
