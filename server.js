@@ -7,6 +7,7 @@ const server = http.createServer(app);
 const axios = require('axios');
 const logger = require('heroku-logger');
 const fs = require('fs');
+log("djdjdjjd")
 fs.readFile("id.txt", 'utf8', function(err, data) {
     if (err) throw err;
     console.log(data)
