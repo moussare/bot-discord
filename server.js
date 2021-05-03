@@ -135,12 +135,17 @@ function subscribe(){
 }
 function getAllSubs(){
   axios
-    .post('https://id.twitch.tv/oauth2/token?client_id='+process.env.TWITCH_CLIENT_ID+'&client_secret'+ process.env.TWITCH_TOKEN+'=&grant_type=client_credentials')
+    .get('https://api.twitch.tv/helix/eventsub/subscriptions',
+    {headers: {
+      'Authorization': "Bearer 1ohs009s87j8rkvsx42ocotg8sw8v8",
+      'Client-ID': "jv7r47bdb2tlxrjealn6g1fgpo24g4",
+      'Content-Type': 'application/json'
+      }})
     .then(res => {
-      doLog(res)
+      console.log(res)
     })
     .catch(error => {
-      doLog(error)
+      console.error(error)
     });
 }
 
