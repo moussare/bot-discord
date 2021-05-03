@@ -12,7 +12,7 @@ const verify = (req, res, buf, encoding) => {
   const calculated = 'sha256=' + crypto.createHmac('sha256', "secret").update(buf).digest('hex');
   req.verified = expected == calculated;
 };
-getAllSubs()
+
 app.use(bodyParser.json())
 app.post('/onlive', function(req, res) { 
   var status = req.body.subscription.status;
