@@ -137,8 +137,8 @@ function getAllSubs(){
   axios
     .get('https://api.twitch.tv/helix/eventsub/subscriptions',
     {headers: {
-      'Authorization': "Bearer 1ohs009s87j8rkvsx42ocotg8sw8v8",
-      'Client-ID': "jv7r47bdb2tlxrjealn6g1fgpo24g4",
+      'Authorization': process.env.TWITCH_TOKEN,
+      'Client-ID': process.env.TWITCH_CLIENT_ID,
       'Content-Type': 'application/json'
       }})
     .then(res => {
