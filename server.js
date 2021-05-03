@@ -142,7 +142,7 @@ function getAllSubs(){
       'Content-Type': 'application/json'
       }})
     .then(res => {
-      console.log(res.data.data[0])
+      console.log(res.data.data[1])
     })
     .catch(error => {
       console.error(error)
