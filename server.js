@@ -12,6 +12,7 @@ const verify = (req, res, buf, encoding) => {
   const calculated = 'sha256=' + crypto.createHmac('sha256', "secret").update(buf).digest('hex');
   req.verified = expected == calculated;
 };
+getAllSubs()
 app.use(bodyParser.json())
 app.post('/onlive', function(req, res) { 
   var status = req.body.subscription.status;
@@ -136,10 +137,10 @@ function getAllSubs(){
   axios
     .post('https://id.twitch.tv/oauth2/token?client_id='+process.env.TWITCH_CLIENT_ID+'&client_secret'+ process.env.TWITCH_TOKEN+'=&grant_type=client_credentials')
     .then(res => {
-      console.log(res)
+      doLog(res)
     })
     .catch(error => {
-      console.error(error)
+      doLog(error)
     });
 }
 
