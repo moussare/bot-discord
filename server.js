@@ -34,7 +34,7 @@ app.post('/onlive', function(req, res) {
         if (err) throw err;
         if(payload.id != data){
           log(payload.id)
-          alerteWebHook();
+          alerteWebHook(payload.condition.broadcaster_user_id);
         }
       });
       res.sendStatus(200);
@@ -52,48 +52,29 @@ app.listen(PORT, function() {
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
-function alerteWebHook(){
+function alerteWebHook(broadcaster_user_id){
 
   const helix = axios.create({
-    baseURL: 'https://api.twitch.tv/helix/',
+    baseURL: 'https://api.twitch.tv/kraken/users/',
     headers: {
       'Authorization': process.env.TWITCH_TOKEN,
       'Client-ID': process.env.TWITCH_CLIENT_ID,
-      'Content-Type': 'application/json'
-      }
-
+      "Accept": "application/vnd.twitchtv.v5+json"
+    }
   });
-  const streamer = process.env.STREAMER
-  helix.get('streams?user_login='+streamer).then( function (response) {
-    var info = response.data.data[0];
+  helix.get(broadcaster_user_id).then( function (response) {
+    var info = response.data;
     axios
     .post(process.env.WEBHOOK_DISCORD,{
       "content": "Le live est lancé @everyone",
       "embeds": [{
         "author": {
-          "name": info.user_login+" le stream commence !",
-          "url": "https://www.twitch.tv/"+info.user_login,
-          "icon_url": "https://avatar.glue-bot.xyz/twitch/"+info.user_login
+          "name": info.display_name+" le stream commence !",
+          "url": "https://www.twitch.tv/"+info.display_name,
+          "icon_url": info.logo
         },
-        "fields": [
-          {
-            "name": "titre",
-            "value": info.title,
-            "inline": false
-          },
-          {
-            "name": "jeu",
-            "value": info.game_name,
-            "inline": true
-          },
-          {
-            "name": "Viewers",
-            "value": info.viewer_count,
-            "inline": true
-          }
-        ],
         "image": {
-          "url":  'https://static-cdn.jtvnw.net/previews-ttv/live_user_'+info.user_login+'-320x180.jpg'
+          "url":  info.logo
         },
         "color": 9520895
       }]
