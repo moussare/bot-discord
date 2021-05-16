@@ -55,36 +55,57 @@ app.listen(PORT, function() {
 function alerteWebHook(broadcaster_user_id){
 
   const helix = axios.create({
-    baseURL: 'https://api.twitch.tv/kraken/users/',
+    baseURL: 'https://api.twitch.tv/helix/',
     headers: {
       'Authorization': process.env.TWITCH_TOKEN,
       'Client-ID': process.env.TWITCH_CLIENT_ID,
-      "Accept": "application/vnd.twitchtv.v5+json"
     }
   });
-  helix.get(broadcaster_user_id).then( function (response) {
-    var info = response.data;
-    axios
-    .post(process.env.WEBHOOK_DISCORD,{
-      "content": "Le live est lancé @everyone",
-      "embeds": [{
-        "author": {
-          "name": info.display_name+" le stream commence !",
-          "url": "https://www.twitch.tv/"+info.display_name,
-          "icon_url": info.logo
-        },
-        "image": {
-          "url":  info.logo
-        },
-        "color": 9520895
-      }]
-    })
-    .then(res => {
-      
-    })
-    .catch(error => {
-      console.error(error)
-    });
+  helix.get("channels?broadcaster_id="+broadcaster_user_id).then( function (response) {   
+    const streamer = response.data.data[0].broadcaster_name;
+    helix.get("streams?user_login="+streamer).then( function (response) {
+        const info = response.data.data[0]
+        axios
+        .post(process.env.WEBHOOK_DISCORD,{
+          "content": "Le live est lancé @everyone",
+          "embeds": [{
+            "author": {
+              "name": info.user_login+" le stream commence !",
+              "url": "https://www.twitch.tv/"+info.user_login,
+              "icon_url": "https://avatar.glue-bot.xyz/twitch/"+info.user_login
+            },
+            "fields": [
+              {
+                "name": "titre",
+                "value": info.title,
+                "inline": false
+              },
+              {
+                "name": "jeu",
+                "value": info.game_name,
+                "inline": true
+              },
+              {
+                "name": "Viewers",
+                "value": info.viewer_count,
+                "inline": true
+              }
+            ],
+            "image": {
+              "url":  'https://static-cdn.jtvnw.net/previews-ttv/live_user_'+info.user_login+'-320x180.jpg'
+            },
+            "color": 9520895
+          }]
+        })
+        .then(res => {
+          
+        })
+        .catch(error => {
+          console.error(error)
+        });
+    }).catch(error => {
+        console.error(error)
+    }); 
   })
 }
 function subscribe(){
@@ -136,12 +157,4 @@ function doLog(json){
 function log(id){
   fs.writeFileSync('id.txt', id);
 }
-
-
-// truc à faire :
-// enlever le code qui sert à rien => FAIT
-// tester la validiter du token 
-// tester la revocation du subscribe et re sub si c'est le cas => FAIT
-// utiliser le webhook pour la notification (simple à mettre en place sur plusieurs server) => FAIT
-// prendre les info de twitch pour remplir le json du webhook => FAIT
 
