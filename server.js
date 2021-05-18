@@ -20,16 +20,16 @@ app.post('/onlive', function(req, res) {
   var payload = req.body.subscription;
 
  if(challenge !== undefined){
-   log(req.body)
+   //log(req.body)
    res.status(200).send(challenge);
   }
   else if(payload !== undefined){
     if(status === "authorization_revoked"){
       subscribe();
-      doLog(payload)
+     // doLog(payload)
     }
     else{
-      doLog(payload)
+     // doLog(payload)
       fs.readFile("id.txt", 'utf8', function(err, data) {
         if (err) throw err;
         if(payload.id != data){
